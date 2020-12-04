@@ -2,8 +2,6 @@
 
 > Experimental parser for the new scp format (Supercell Packs).
 
-### 🏠 [Homepage](https://github.com/PhoenixFire6879/scp_parse/blob/master/README.md)
-
 ## Prerequisites
 
 - python 3.7
