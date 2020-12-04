@@ -27,21 +27,18 @@ class ScP():
 
             self.r.read_int32()
 
-            self.files_count = self.r.read_int32()
-            info_offset      = self.r.read_int32()
+            self.files_count = self.r.read_int32() # files count
+            info_offset      = self.r.read_int32() # files info offset
 
-            self.r.read_int32() # 0
-            self.r.read_int32() # 448
-
-            self.r.read_int32() # 0
-            self.r.read_int32() # 448
+            self.r.read_int64()
+            self.r.read_int64()
 
             for i in range(9):
-                self.r.read_int32() # 0
+                self.r.read_int32() 
 
             self.r.read_hash(32) # maybe a kind of hash
 
-            self.r.skip(1) # 0
+            self.r.skip(1)
 
         # scp header ends here
 
