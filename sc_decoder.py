@@ -50,77 +50,82 @@ class ScDecode:
         picCount = 0
 
         while len(decompressed[i:]) > 5:
-            _("Collecting information...")
-            
-            file_type = int.from_bytes(self.r.read(1), "little")
-            file_size = self.r.read_uint32()
-            sub_type = int.from_bytes(self.r.read(1), "little")
-            width = self.r.read_uint16()
-            height = self.r.read_uint16()
+            try:
 
-            _(f"File type: {file_type}, size: {file_size}, sub type: {sub_type}, width: {width}, height: {height} ")
-            _("Creating picture...")
+                file_type = int.from_bytes(self.r.read(1), "little")
+                file_size = self.r.read_uint32()
+                sub_type = int.from_bytes(self.r.read(1), "little")
+                width = self.r.read_uint16()
+                height = self.r.read_uint16()
 
-            i += 10
+                if file_type == 0 and file_size == 0:
+                    return
 
-            if sub_type == 0:
-                pixel_size = 4
-            else:
-                if sub_type == 2 or sub_type == 4 or sub_type == 6:
-                    pixel_size = 2
-                elif sub_type == 10:
-                    pixel_size = 1
+                _(f"File type: {file_type}, size: {file_size}, sub type: {sub_type}, width: {width}, height: {height} ")
+                _("Creating picture...")
+
+                i += 10
+
+                if sub_type == 0:
+                    pixel_size = 4
                 else:
-                    raise Exception("Unknown pixel type: " + sub_type)
+                    if sub_type == 2 or sub_type == 4 or sub_type == 6:
+                        pixel_size = 2
+                    elif sub_type == 10:
+                        pixel_size = 1
+                    else:
+                        raise Exception("Unknown pixel type: " + sub_type)
 
 
-            img = Image.new("RGBA", (width, height))
+                img = Image.new("RGBA", (width, height))
 
-            pixels = []
+                pixels = []
 
-            for y in range(height):
-                for x in range(width):
-                    pixels.append(self.convert_pixel(self.r.read(pixel_size), sub_type))
-                    i += pixel_size
+                for y in range(height):
+                    for x in range(width):
+                        pixels.append(self.convert_pixel(self.r.read(pixel_size), sub_type))
+                        i += pixel_size
 
-            img.putdata(pixels)
+                img.putdata(pixels)
 
-            if file_type == 28 or file_type == 27:
-                imgl = img.load()
-                iSrcPix = 0
-                for l in range(int(height / 32)):
-                    for k in range(int(width / 32)):
+                if file_type == 28 or file_type == 27:
+                    imgl = img.load()
+                    iSrcPix = 0
+                    for l in range(int(height / 32)):
+                        for k in range(int(width / 32)):
+                            for j in range(32):
+                                for h in range(32):
+                                    imgl[h + (k * 32), j + (l * 32)] = pixels[iSrcPix]
+                                    iSrcPix += 1
                         for j in range(32):
-                            for h in range(32):
-                                imgl[h + (k * 32), j + (l * 32)] = pixels[iSrcPix]
+                            for h in range(width % 32):
+                                imgl[h + (width - (width % 32)), j + (l * 32)] = pixels[iSrcPix]
                                 iSrcPix += 1
-                    for j in range(32):
+
+                    for k in range(int(width / 32)):
+                        for j in range(int(height % 32)):
+                            for h in range(32):
+                                imgl[h + (k * 32), j + (height - (height % 32))] = pixels[iSrcPix]
+                                iSrcPix += 1
+
+                    for j in range(height % 32):
                         for h in range(width % 32):
-                            imgl[h + (width - (width % 32)), j + (l * 32)] = pixels[iSrcPix]
+                            imgl[h + (width - (width % 32)), j + (height - (height % 32))] = pixels[iSrcPix]
                             iSrcPix += 1
 
-                for k in range(int(width / 32)):
-                    for j in range(int(height % 32)):
-                        for h in range(32):
-                            imgl[h + (k * 32), j + (height - (height % 32))] = pixels[iSrcPix]
-                            iSrcPix += 1
-
-                for j in range(height % 32):
-                    for h in range(width % 32):
-                        imgl[h + (width - (width % 32)), j + (height - (height % 32))] = pixels[iSrcPix]
-                        iSrcPix += 1
 
 
+                path, name = os.path.split(self.filename)
+                a = name.split('\\')[-1].split('.')[0]
+                fullname = a + ('_' * picCount)
+                if not os.path.isdir(a):
+                    os.mkdir(a)
+                img.save(f"{a}/{fullname}.png", "PNG")
+                picCount += 1
+                _(f"Saved image to {a}/{a}.png ")
 
-            path, name = os.path.split(self.filename)
-            a = name.split('\\')[-1].split('.')[0]
-            fullname = a + ('_' * picCount)
-            if not os.path.isdir(a):
-                os.mkdir(a)
-            img.save(f"{a}/{fullname}.png", "PNG")
-            picCount += 1
-            _(f"Saved image to {a}/{a}.png ")
-
+            except:
+                pass
 
 
 input_file = input("Enter the name of the _tex.sc (eg. loading_tex.sc)\n")

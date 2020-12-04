@@ -7,7 +7,7 @@ def _(string):
     print(f"[INFO] {string}")
 
 
-class ScPacks():
+class ScP():
     def __init__(self, filename):
         data = open(filename, 'rb').read()
         self.initial_file = filename
@@ -30,15 +30,25 @@ class ScPacks():
             self.files_count = self.r.read_int32()
             info_offset      = self.r.read_int32()
 
-            self.r.skip(52)
-            self.r.skip(32)
-            self.r.skip(1)
+            self.r.read_int32() # 0
+            self.r.read_int32() # 448
+
+            self.r.read_int32() # 0
+            self.r.read_int32() # 448
+
+            for i in range(9):
+                self.r.read_int32() # 0
+
+            self.r.skip(30) # hmm ?
+
+        # scp header ends here
 
             self.r.set_offset(info_offset)
+            info_offset
 
-            for x in range(self.files_count):
+            for i in range(self.files_count):
 
-                self.r.read_int32()
+                self.r.read_int32() # hmm ?
 
                 self.file_size   = self.r.read_int64()
                 self.file_offset = self.r.read_int64()
@@ -47,7 +57,7 @@ class ScPacks():
                 self.file_hash   = self.r.read_hash(32)
                 self.file_name   = self.r.read_string_little()
 
-                offset      = self.r.stream.tell()
+                offset           = self.r.stream.tell()
                 self.r.set_offset(self.file_offset)
 
                 self.file_data   = self.r.read(self.file_size)
@@ -83,5 +93,5 @@ class ScPacks():
 
 input_file = input("Enter the name of the scp (eg. tutorial.scp)\n")
 
-parser = ScPacks(input_file)
+parser = ScP(input_file)
 parser.scp_parse()
