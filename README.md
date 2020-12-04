@@ -2,6 +2,7 @@
 
 > Experimental parser for the new scp format (Supercell Packs).
 
+
 ## Prerequisites
 
 - python 3.7
@@ -25,6 +26,10 @@
     - Open PyDroid and wait until Python installs.
     - Download the files and extract them.
     - In PyDroid open and execute "index.py" file
+    
+
+  
+##### This tool also contains a modified version of old [XCoder](https://github.com/MasterDevX/XCoder) so you can decompress the extracted _tex.sc files.
 
 
 #### Need help? Contact me on Discord (PhoenixFire#6879)
