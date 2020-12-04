@@ -39,12 +39,13 @@ class ScP():
             for i in range(9):
                 self.r.read_int32() # 0
 
-            self.r.skip(30) # hmm ?
+            self.r.read_hash(32) # maybe a kind of hash
+
+            self.r.skip(1) # 0
 
         # scp header ends here
 
             self.r.set_offset(info_offset)
-            info_offset
 
             for i in range(self.files_count):
 
