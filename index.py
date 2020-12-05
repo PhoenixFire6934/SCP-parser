@@ -16,10 +16,9 @@ class ScP():
 
     def scp_parse(self):
         # scp header
-        signature = self.r.read(3)
+        signature = self.r.read(4)
 
-        if signature == b'SCP':
-            self.r.skip(1)
+        if signature == b'SCP!':
 
             version = self.r.read_int32()
 
@@ -34,7 +33,7 @@ class ScP():
             self.r.read_int64()
 
             for i in range(9):
-                self.r.read_int32() 
+                self.r.read_int32()
 
             self.r.read_hash(32) # maybe a kind of hash
 
@@ -46,7 +45,8 @@ class ScP():
 
             for i in range(self.files_count):
 
-                self.r.read_int32() # hmm ?
+                self.r.read_int16()
+                self.r.read_int16() # file name length
 
                 self.file_size   = self.r.read_int64()
                 self.file_offset = self.r.read_int64()
